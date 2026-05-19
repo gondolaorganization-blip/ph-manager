@@ -55,9 +55,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p style={{ marginTop: 16, textAlign: 'center', fontSize: 12, color: 'var(--slate-500)' }}>
-          Demo: admin@demo.com / demo1234
-        </p>
       </div>
     </div>
   );
