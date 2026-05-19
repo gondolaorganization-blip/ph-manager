@@ -1,0 +1,519 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+
+model Usuario {
+  id           Int       @id @default(autoincrement())
+  nombre       String
+  email        String    @unique
+  password     String
+  rol          String    @default("ADMIN")   // SUPER_ADMIN, ADMIN, OPERADOR
+  activo       Boolean   @default(true)
+  creadoEn     DateTime  @default(now())
+  ultimoAcceso DateTime?
+
+  edificios EdificioUsuario[]
+
+  @@map("usuarios")
+}
+
+// ─── EDIFICIO ─────────────────────────────────────────────────────────────────
+
+model Edificio {
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  ruc           String?
+  direccion     String
+  totalUnidades Int      @default(0)
+  fondoReserva     Decimal  @default(0)    @db.Decimal(12, 2)
+  diaCorte         Int      @default(5)                      // Día límite de pago (1–28)
+  tipoMora         String   @default("PORCENTAJE")           // PORCENTAJE | FIJO
+  tasaMora         Decimal  @default(0.02) @db.Decimal(5, 4) // Recargo si tipoMora=PORCENTAJE (ej. 0.02 = 2%)
+  montoMoraFijo    Decimal  @default(0)    @db.Decimal(10, 2)// Recargo si tipoMora=FIJO (ej. 5.00)
+  codigoUbicacion  String?                                   // Código de Ubicación (Registro Público)
+  folioReal        String?                                   // Folio Real (Registro Público)
+  admin            String?                                   // Nombre/empresa administradora
+  activo           Boolean  @default(true)
+  creadoEn         DateTime @default(now())
+
+  // Suscripción / trial
+  plan              String    @default("TRIAL")              // TRIAL, BASICO, PROFESIONAL, ENTERPRISE
+  trialVence        DateTime?                                // null = sin trial; set = fecha de vencimiento
+  suscripcionActiva Boolean   @default(false)               // true cuando admin confirma pago
+
+  usuarios      EdificioUsuario[]
+  unidades      Unidad[]
+  cuotas        CuotaMantenimiento[]
+  proveedores   Proveedor[]
+  ordenes       OrdenTrabajo[]
+  reservas      ReservaArea[]
+  gastos        Gasto[]
+  ingresos      Ingreso[]
+  presupuesto   PresupuestoItem[]
+  cuotasExt     CuotaExtraordinaria[]
+  actas         Acta[]
+  actasJD       ActaJD[]
+  avisos        Aviso[]
+  visitas       Visita[]
+  garitaConfig  GaritaConfig?
+
+  @@map("edificios")
+}
+
+model EdificioUsuario {
+  id         Int    @id @default(autoincrement())
+  edificioId Int
+  usuarioId  Int
+  rol        String @default("ADMIN")   // ADMIN, OPERADOR, AUDITOR
+
+  edificio Edificio @relation(fields: [edificioId], references: [id])
+  usuario  Usuario  @relation(fields: [usuarioId],  references: [id])
+
+  @@unique([edificioId, usuarioId])
+  @@map("edificio_usuarios")
+}
+
+// ─── UNIDADES Y PROPIETARIOS ──────────────────────────────────────────────────
+
+model Unidad {
+  id              Int     @id @default(autoincrement())
+  edificioId      Int
+  numero          String                              // "1A", "PH-2", "L-03"
+  numFinca        String?                             // Número de finca en el Registro Público
+  piso            Int?
+  tipo            String  @default("APARTAMENTO")    // APARTAMENTO, LOCAL, ESTACIONAMIENTO, DEPOSITO, OFICINA
+  metrosCuadrados Decimal @default(0) @db.Decimal(8, 2)
+  coeficiente     Decimal @default(0) @db.Decimal(8, 6) // % de participación (suma = 1.000000)
+  activa          Boolean @default(true)
+
+  edificio    Edificio         @relation(fields: [edificioId], references: [id])
+  propietario Propietario?
+  pagos       PagoCuota[]
+  pagosExt    PagoCuotaExt[]
+  reservas    ReservaArea[]
+  asistencias ActaAsistencia[]
+  visitas     Visita[]
+
+  @@unique([edificioId, numero])
+  @@map("unidades")
+}
+
+model Propietario {
+  id             Int      @id @default(autoincrement())
+  unidadId       Int      @unique
+  nombre         String
+  cedula         String?
+  email          String?
+  telefono       String?
+  activo         Boolean  @default(true)
+  portalPassword String?
+  portalActivo   Boolean  @default(false)
+  creadoEn       DateTime @default(now())
+
+  unidad  Unidad   @relation(fields: [unidadId], references: [id])
+  visitas Visita[]
+
+  @@map("propietarios")
+}
+
+// ─── CUOTAS Y PAGOS ───────────────────────────────────────────────────────────
+
+model CuotaMantenimiento {
+  id         Int      @id @default(autoincrement())
+  edificioId Int
+  mes        Int                                     // 1–12
+  anio       Int
+  monto      Decimal  @db.Decimal(10, 2)
+  fechaVence DateTime @db.Date
+  generada   Boolean  @default(false)                // true cuando se generaron los PagoCuota
+  creadoEn   DateTime @default(now())
+
+  edificio Edificio    @relation(fields: [edificioId], references: [id])
+  pagos    PagoCuota[]
+
+  @@unique([edificioId, mes, anio])
+  @@map("cuotas_mantenimiento")
+}
+
+model PagoCuota {
+  id         Int      @id @default(autoincrement())
+  cuotaId    Int
+  unidadId   Int
+  monto      Decimal  @db.Decimal(10, 2)
+  interesMora Decimal @default(0) @db.Decimal(10, 2)
+  fechaVence DateTime @db.Date
+  fechaPago  DateTime? @db.Date
+  estado     String   @default("PENDIENTE")          // PENDIENTE, PAGADO, VENCIDO
+  metodo     String?                                 // EFECTIVO, TRANSFERENCIA, YAPPY, CHEQUE
+  referencia String?
+  comprobante String?                                // URL del archivo adjunto
+  notas      String?
+  creadoEn   DateTime @default(now())
+
+  cuota  CuotaMantenimiento @relation(fields: [cuotaId],  references: [id])
+  unidad Unidad             @relation(fields: [unidadId], references: [id])
+
+  @@unique([cuotaId, unidadId])
+  @@map("pagos_cuota")
+}
+
+// ─── PROVEEDORES Y ÓRDENES DE TRABAJO ─────────────────────────────────────────
+
+model Proveedor {
+  id         Int     @id @default(autoincrement())
+  edificioId Int
+  nombre     String
+  ruc        String?
+  servicio   String                                  // ELECTRICIDAD, PLOMERIA, JARDINERIA, LIMPIEZA, etc.
+  contacto   String?
+  email      String?
+  activo     Boolean @default(true)
+  creadoEn   DateTime @default(now())
+
+  edificio Edificio       @relation(fields: [edificioId], references: [id])
+  ordenes  OrdenTrabajo[]
+
+  @@map("proveedores")
+}
+
+model OrdenTrabajo {
+  id           Int      @id @default(autoincrement())
+  edificioId   Int
+  proveedorId  Int?
+  descripcion  String
+  monto        Decimal? @db.Decimal(10, 2)
+  estado       String   @default("PENDIENTE")        // PENDIENTE, APROBADA, EN_PROCESO, COMPLETADA, CANCELADA
+  prioridad    String   @default("NORMAL")           // URGENTE, NORMAL, BAJA
+  fecha        DateTime @default(now())
+  fechaEstimada DateTime? @db.Date
+  fechaCierre  DateTime? @db.Date
+  notas        String?
+  comprobante  String?
+
+  edificio  Edificio   @relation(fields: [edificioId],  references: [id])
+  proveedor Proveedor? @relation(fields: [proveedorId], references: [id])
+  logs      OrdenTrabajoLog[]
+  adjuntos  OrdenTrabajoAdjunto[]
+
+  @@map("ordenes_trabajo")
+}
+
+model OrdenTrabajoLog {
+  id       Int      @id @default(autoincrement())
+  ordenId  Int
+  estado   String
+  nota     String?
+  creadoEn DateTime @default(now())
+  orden    OrdenTrabajo @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  @@map("orden_trabajo_logs")
+}
+
+model OrdenTrabajoAdjunto {
+  id       Int      @id @default(autoincrement())
+  ordenId  Int
+  url      String
+  nombre   String
+  creadoEn DateTime @default(now())
+  orden    OrdenTrabajo @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  @@map("orden_trabajo_adjuntos")
+}
+
+// ─── RESERVAS DE ÁREAS COMUNES ────────────────────────────────────────────────
+
+model ReservaArea {
+  id         Int      @id @default(autoincrement())
+  edificioId Int
+  unidadId   Int
+  area       String                                  // SALON, PISCINA, GIMNASIO, TERRAZA, BBQ
+  fecha      DateTime @db.Date
+  horaInicio String                                  // "09:00"
+  horaFin    String                                  // "14:00"
+  estado     String   @default("APROBADA")           // PENDIENTE, APROBADA, CANCELADA
+  notas      String?
+  creadoEn   DateTime @default(now())
+
+  edificio Edificio @relation(fields: [edificioId], references: [id])
+  unidad   Unidad   @relation(fields: [unidadId],   references: [id])
+
+  @@map("reservas_area")
+}
+
+// ─── CUOTAS EXTRAORDINARIAS ───────────────────────────────────────────────────
+
+model CuotaExtraordinaria {
+  id               Int      @id @default(autoincrement())
+  edificioId       Int
+  descripcion      String
+  monto            Decimal  @db.Decimal(10, 2)   // por unidad (FIJO) o total (PROPORCIONAL)
+  tipoDistribucion String   @default("FIJO")      // FIJO | PROPORCIONAL
+  fechaVence       DateTime @db.Date
+  notas            String?
+  creadoEn         DateTime @default(now())
+
+  edificio Edificio        @relation(fields: [edificioId], references: [id])
+  pagos    PagoCuotaExt[]
+
+  @@map("cuotas_extraordinarias")
+}
+
+model PagoCuotaExt {
+  id          Int       @id @default(autoincrement())
+  cuotaId     Int
+  unidadId    Int
+  monto       Decimal   @db.Decimal(10, 2)
+  fechaVence  DateTime  @db.Date
+  fechaPago   DateTime? @db.Date
+  estado      String    @default("PENDIENTE")     // PENDIENTE, PAGADO, VENCIDO
+  metodo      String?
+  referencia  String?
+  comprobante String?
+  notas       String?
+  creadoEn    DateTime  @default(now())
+
+  cuota  CuotaExtraordinaria @relation(fields: [cuotaId],  references: [id], onDelete: Cascade)
+  unidad Unidad              @relation(fields: [unidadId], references: [id])
+
+  @@unique([cuotaId, unidadId])
+  @@map("pagos_cuota_ext")
+}
+
+// ─── PRESUPUESTO ──────────────────────────────────────────────────────────────
+
+model PresupuestoItem {
+  id         Int      @id @default(autoincrement())
+  edificioId Int
+  anio       Int
+  mes        Int                                    // 1-12
+  categoria  String                                 // mismas categorías que Gasto
+  monto      Decimal  @default(0) @db.Decimal(10, 2)
+  creadoEn   DateTime @default(now())
+
+  edificio Edificio @relation(fields: [edificioId], references: [id])
+
+  @@unique([edificioId, anio, mes, categoria])
+  @@map("presupuesto_items")
+}
+
+// ─── INGRESOS VARIOS ──────────────────────────────────────────────────────────
+
+model Ingreso {
+  id          Int      @id @default(autoincrement())
+  edificioId  Int
+  categoria   String                                 // MULTA, ALQUILER, INTERESES, CUOTA_EXTRAORDINARIA, OTROS
+  descripcion String
+  monto       Decimal  @db.Decimal(10, 2)
+  fecha       DateTime @db.Date
+  referencia  String?
+  notas       String?
+  creadoEn    DateTime @default(now())
+
+  edificio Edificio @relation(fields: [edificioId], references: [id])
+
+  @@map("ingresos")
+}
+
+// ─── GASTOS ───────────────────────────────────────────────────────────────────
+
+model Gasto {
+  id          Int      @id @default(autoincrement())
+  edificioId  Int
+  categoria   String                                 // MANTENIMIENTO, SERVICIOS, PERSONAL, ADMINISTRACION, FONDO_RESERVA, OTROS
+  descripcion String
+  monto       Decimal  @db.Decimal(10, 2)
+  fecha       DateTime @db.Date
+  comprobante String?                                // path del archivo
+  proveedor   String?
+  notas       String?
+  creadoEn    DateTime @default(now())
+
+  edificio Edificio @relation(fields: [edificioId], references: [id])
+
+  @@map("gastos")
+}
+
+// ─── ACTAS ────────────────────────────────────────────────────────────────────
+
+model Acta {
+  id               Int      @id @default(autoincrement())
+  edificioId       Int
+  numero           Int?                                  // Correlativo anual por edificio
+  anio             Int?                                  // Año del acta (reinicia numeración)
+  tipo             String                                // ORDINARIA, EXTRAORDINARIA
+  modalidad        String   @default("PRESENCIAL")      // PRESENCIAL, VIRTUAL, MIXTA
+  fecha            DateTime @db.Date
+  lugar            String?                               // Lugar físico o medio tecnológico
+  horaInicio       String?                               // "09:00"
+  horaFin          String?                               // "11:30"
+  convocatoria      String?                               // Transcripción del aviso de convocatoria
+  fechaConvocatoria DateTime? @db.Date                   // Fecha en que se emitió la convocatoria
+  convocadoPor      String?                               // Quién emitió la convocatoria
+  presidente        String?
+  presidenteCedula  String?
+  secretario        String?
+  secretarioCedula  String?
+  quorum            Decimal  @db.Decimal(5, 2)            // % de propietarios presentes (Ley 284, Art.67)
+  acuerdos          String?                               // Texto libre adicional / otros acuerdos
+  autorizadoPara    String?                               // Cláusula de autorización para inscripción RP
+  documento         String?                               // path PDF firmado
+  creadoEn         DateTime @default(now())
+
+  edificio    Edificio         @relation(fields: [edificioId], references: [id])
+  asistencias ActaAsistencia[]
+  propuestas  ActaPropuesta[]
+
+  @@map("actas")
+}
+
+model ActaAsistencia {
+  id                  Int    @id @default(autoincrement())
+  actaId              Int
+  unidadId            Int
+  estado              String @default("AUSENTE")         // PRESENTE, AUSENTE, REPRESENTADO
+  modalidadAsistencia String @default("PRESENCIAL")      // PRESENCIAL, VIRTUAL
+  mandatario          String?                             // Nombre del mandatario si es REPRESENTADO
+  mandatarioCedula    String?                             // Cédula del mandatario
+
+  acta   Acta   @relation(fields: [actaId],   references: [id], onDelete: Cascade)
+  unidad Unidad @relation(fields: [unidadId], references: [id])
+
+  @@unique([actaId, unidadId])
+  @@map("acta_asistencias")
+}
+
+model ActaPropuesta {
+  id                   Int     @id @default(autoincrement())
+  actaId               Int
+  orden                Int
+  descripcion          String
+  tipoVotacion         String  @default("SIMPLE")        // SIMPLE, P51, P66, P66_75V, P75V
+  resultado            String  @default("PENDIENTE")     // APROBADA, NEGADA, PENDIENTE
+  votosAFavor          Int     @default(0)
+  votosEnContra        Int     @default(0)
+  abstenciones         Int     @default(0)
+  requiereInscripcionRP Boolean @default(false)
+  notas                String?
+
+  acta Acta @relation(fields: [actaId], references: [id], onDelete: Cascade)
+
+  @@map("acta_propuestas")
+}
+
+// ─── ACTAS DE JUNTA DIRECTIVA ─────────────────────────────────────────────────
+
+model ActaJD {
+  id         Int      @id @default(autoincrement())
+  edificioId Int
+  numero     Int?                                        // Correlativo anual por edificio
+  anio       Int                                         // Año del acta
+  fecha      DateTime @db.Date
+  horaInicio String?
+  horaFin    String?
+  lugar      String?
+  quorum     Decimal  @default(0) @db.Decimal(5, 2)     // % directores presentes
+  presidente        String?
+  presidenteCedula  String?
+  secretario        String?
+  secretarioCedula  String?
+  acuerdos   String?
+  documento  String?
+  creadoEn   DateTime @default(now())
+
+  edificio  Edificio         @relation(fields: [edificioId], references: [id])
+  directores ActaJDDirector[]
+  puntos     ActaJDPunto[]
+
+  @@map("actas_jd")
+}
+
+model ActaJDDirector {
+  id       Int    @id @default(autoincrement())
+  actaJDId Int
+  nombre   String
+  cedula   String?
+  cargo    String @default("DIRECTOR")   // PRESIDENTE, VICEPRESIDENTE, SECRETARIO, TESORERO, VOCAL, DIRECTOR
+  estado   String @default("PRESENTE")  // PRESENTE, AUSENTE, JUSTIFICADO
+
+  acta ActaJD @relation(fields: [actaJDId], references: [id], onDelete: Cascade)
+
+  @@map("acta_jd_directores")
+}
+
+model ActaJDPunto {
+  id          Int    @id @default(autoincrement())
+  actaJDId    Int
+  orden       Int
+  descripcion String
+  resultado   String @default("INFORMATIVO")  // APROBADO, NEGADO, INFORMATIVO, PENDIENTE
+  notas       String?
+
+  acta ActaJD @relation(fields: [actaJDId], references: [id], onDelete: Cascade)
+
+  @@map("acta_jd_puntos")
+}
+
+// ─── VISITAS ──────────────────────────────────────────────────────────────────
+
+model Visita {
+  id               Int      @id @default(autoincrement())
+  edificioId       Int
+  unidadId         Int
+  propietarioId    Int
+  nombreVisitante  String
+  cedulaVisitante  String?                            // Cédula/pasaporte registrado por garita
+  fotoDocumento    String?                            // URL foto del documento en garita
+  fechaVisita      DateTime @db.Date
+  horaEsperada     String?                            // "14:30"
+  placa            String?                            // Placa esperada (propietario) o confirmada (garita)
+  cantidadPersonas Int      @default(1)
+  estado           String   @default("PENDIENTE")    // PENDIENTE, LLEGÓ, NO_LLEGÓ, CANCELADA
+  entrada          DateTime?
+  salida           DateTime?
+  notas            String?
+  creadoEn         DateTime @default(now())
+
+  edificio    Edificio    @relation(fields: [edificioId],    references: [id])
+  unidad      Unidad      @relation(fields: [unidadId],      references: [id])
+  propietario Propietario @relation(fields: [propietarioId], references: [id])
+
+  @@map("visitas")
+}
+
+model GaritaConfig {
+  id         Int     @id @default(autoincrement())
+  edificioId Int     @unique
+  pin        String
+  activo     Boolean @default(true)
+
+  edificio Edificio @relation(fields: [edificioId], references: [id])
+
+  @@map("garita_config")
+}
+
+// ─── AVISOS ───────────────────────────────────────────────────────────────────
+
+model Aviso {
+  id               Int       @id @default(autoincrement())
+  edificioId       Int
+  titulo           String
+  mensaje          String
+  tipo             String    @default("GENERAL")      // GENERAL, URGENTE, MANTENIMIENTO, CONVOCATORIA
+  adjunto          String?                            // URL del archivo adjunto (PDF, imagen)
+  fechaPublica     DateTime  @default(now())
+  activo           Boolean   @default(true)
+  emailEnviado     Boolean   @default(false)
+  emailEnviadoEn   DateTime?
+  emailEnviadoCount Int      @default(0)
+  creadoEn         DateTime  @default(now())
+
+  edificio Edificio @relation(fields: [edificioId], references: [id])
+
+  @@map("avisos")
+}
+

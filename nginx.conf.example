@@ -1,0 +1,77 @@
+# Configuración nginx para www.gestarsoft.com
+# Colocar en /etc/nginx/sites-available/gestarsoft.com
+#
+# Requisito: Railway expone el servicio en una URL pública.
+# Reemplazar RAILWAY_URL con la URL real del servicio Railway
+# (ej: ph-manager-production.up.railway.app)
+
+upstream ph_manager {
+    server RAILWAY_URL:443;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name www.gestarsoft.com gestarsoft.com;
+
+    # Redirigir todo HTTP a HTTPS
+    return 301 https://www.gestarsoft.com$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name www.gestarsoft.com gestarsoft.com;
+
+    # SSL — gestionar con Certbot (Let's Encrypt)
+    ssl_certificate     /etc/letsencrypt/live/gestarsoft.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/gestarsoft.com/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+
+    # ── Sitio principal de gestarsoft.com ────────────────────────────────────
+    # (ajustar root según donde esté el sitio principal)
+    root /var/www/gestarsoft;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # ── PH Manager ───────────────────────────────────────────────────────────
+    # Proxy inverso hacia Railway para el frontend React
+    location /ph-manager {
+        proxy_pass         https://RAILWAY_URL;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              RAILWAY_URL;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        "upgrade";
+        proxy_read_timeout 60s;
+    }
+
+    # API del backend
+    location /api {
+        proxy_pass         https://RAILWAY_URL;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              RAILWAY_URL;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+        client_max_body_size 10m;
+    }
+
+    # Archivos subidos (comprobantes, PDFs firmados)
+    location /uploads {
+        proxy_pass         https://RAILWAY_URL;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              RAILWAY_URL;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+}
