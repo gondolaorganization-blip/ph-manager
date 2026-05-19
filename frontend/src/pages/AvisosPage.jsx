@@ -276,7 +276,6 @@ export default function AvisosPage() {
                     </div>
                   )}
                 </div>
-              </div>
                 {!editando && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0 2px' }}>
                     <input type="checkbox" id="notificar" checked={form.notificar}
