@@ -53,31 +53,30 @@ export default function App() {
       {/* Admin */}
       <Route path="/login"     element={<LoginPage />} />
       <Route path="/bootstrap" element={<BootstrapPage />} />
-      <Route path="/" element={<RequireAuth><Layout /></RequireAuth>}>
-        <Route index element={<Navigate to="/edificios" replace />} />
-        <Route path="edificios"          element={<EdificiosPage />} />
-        <Route path="usuarios"           element={<UsuariosSuperAdminPage />} />
-        <Route path="super-dashboard"    element={<SuperAdminDashboardPage />} />
-        <Route path="edificios/:edificioId/dashboard"  element={<DashboardPage />} />
-        <Route path="edificios/:edificioId/unidades"   element={<UnidadesPage />} />
-        <Route path="edificios/:edificioId/cuotas"                       element={<CuotasPage />} />
-        <Route path="edificios/:edificioId/cuotas/:cuotaId/pagos"        element={<PagosPage />} />
-        <Route path="edificios/:edificioId/cuotas-ext"                   element={<CuotasExtPage />} />
-        <Route path="edificios/:edificioId/cuotas-ext/:cuotaExtId/pagos" element={<PagosExtPage />} />
-        <Route path="edificios/:edificioId/morosos"      element={<MorososPage />} />
-        <Route path="edificios/:edificioId/proveedores" element={<ProveedoresPage />} />
-        <Route path="edificios/:edificioId/ordenes"  element={<OrdenesPage />} />
-        <Route path="edificios/:edificioId/gastos"   element={<GastosPage />} />
-        <Route path="edificios/:edificioId/actas"    element={<ActasPage />} />
-        <Route path="edificios/:edificioId/actas-jd" element={<ActasJDPage />} />
-        <Route path="edificios/:edificioId/avisos"    element={<AvisosPage />} />
-        <Route path="edificios/:edificioId/reservas" element={<ReservasPage />} />
-        <Route path="edificios/:edificioId/usuarios" element={<UsuariosEdificioPage />} />
-        <Route path="edificios/:edificioId/propietarios" element={<PropietariosPage />} />
-        <Route path="edificios/:edificioId/visitas"     element={<VisitasPage />} />
-        <Route path="edificios/:edificioId/ingresos"    element={<IngresosPage />} />
-        <Route path="edificios/:edificioId/balance"     element={<BalancePage />} />
-        <Route path="edificios/:edificioId/presupuesto" element={<PresupuestoPage />} />
+      <Route element={<RequireAuth><Layout /></RequireAuth>}>
+        <Route path="/edificios"          element={<EdificiosPage />} />
+        <Route path="/usuarios"           element={<UsuariosSuperAdminPage />} />
+        <Route path="/super-dashboard"    element={<SuperAdminDashboardPage />} />
+        <Route path="/edificios/:edificioId/dashboard"  element={<DashboardPage />} />
+        <Route path="/edificios/:edificioId/unidades"   element={<UnidadesPage />} />
+        <Route path="/edificios/:edificioId/cuotas"                       element={<CuotasPage />} />
+        <Route path="/edificios/:edificioId/cuotas/:cuotaId/pagos"        element={<PagosPage />} />
+        <Route path="/edificios/:edificioId/cuotas-ext"                   element={<CuotasExtPage />} />
+        <Route path="/edificios/:edificioId/cuotas-ext/:cuotaExtId/pagos" element={<PagosExtPage />} />
+        <Route path="/edificios/:edificioId/morosos"      element={<MorososPage />} />
+        <Route path="/edificios/:edificioId/proveedores" element={<ProveedoresPage />} />
+        <Route path="/edificios/:edificioId/ordenes"  element={<OrdenesPage />} />
+        <Route path="/edificios/:edificioId/gastos"   element={<GastosPage />} />
+        <Route path="/edificios/:edificioId/actas"    element={<ActasPage />} />
+        <Route path="/edificios/:edificioId/actas-jd" element={<ActasJDPage />} />
+        <Route path="/edificios/:edificioId/avisos"    element={<AvisosPage />} />
+        <Route path="/edificios/:edificioId/reservas" element={<ReservasPage />} />
+        <Route path="/edificios/:edificioId/usuarios" element={<UsuariosEdificioPage />} />
+        <Route path="/edificios/:edificioId/propietarios" element={<PropietariosPage />} />
+        <Route path="/edificios/:edificioId/visitas"     element={<VisitasPage />} />
+        <Route path="/edificios/:edificioId/ingresos"    element={<IngresosPage />} />
+        <Route path="/edificios/:edificioId/balance"     element={<BalancePage />} />
+        <Route path="/edificios/:edificioId/presupuesto" element={<PresupuestoPage />} />
       </Route>
 
       {/* Portal propietarios */}
