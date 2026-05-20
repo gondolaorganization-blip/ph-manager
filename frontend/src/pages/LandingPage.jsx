@@ -79,8 +79,8 @@ const TESTIMONIALS = [
 const FAQS = [
   { q: "¿Funciona para cualquier tipo de PH?", a: "Sí. PH Manager está diseñado para apartamentos, oficinas, locales comerciales y proyectos mixtos. El sistema calcula cuotas por coeficiente según los m² y tipo de unidad de cada propietario." },
   { q: "¿Cómo acceden los propietarios al portal?", a: "Cada propietario recibe un correo con sus credenciales. Desde el portal puede ver su estado de cuenta, historial de pagos, avisos, actas y hacer reservas de amenidades." },
-  { q: "¿Puedo importar los datos de mi edificio actual?", a: "Sí. Importamos unidades, propietarios y saldos desde Excel. El proceso toma menos de un día." },
-  { q: "¿El sistema maneja el fondo de reserva?", a: "Sí. Registras cada gasto del fondo de reserva y el sistema actualiza el balance automáticamente. También puedes proyectar gastos futuros en el presupuesto anual." },
+  { q: "¿Puedo importar los datos de mi edificio actual?", a: "La importación masiva desde Excel está próximamente. Por ahora, el equipo de onboarding puede ayudarle a ingresar las unidades y propietarios iniciales. Contáctenos para coordinar." },
+  { q: "¿El sistema maneja el fondo de reserva?", a: "Sí. El fondo de reserva tiene su propio saldo dentro del sistema. Cada vez que registras un gasto de esa categoría, el saldo se descuenta automáticamente. Puedes también hacer ajustes manuales (aportes o retiros) y planificar mes a mes con el módulo de presupuesto." },
   { q: "¿Hay período de prueba?", a: "Sí. 14 días de acceso completo sin tarjeta de crédito. Incluye soporte para configurar tu primer edificio." },
   { q: "¿Funciona en el celular?", a: "Sí. La plataforma es responsive y funciona en cualquier dispositivo. El portal del propietario está optimizado para móvil." },
 ];
