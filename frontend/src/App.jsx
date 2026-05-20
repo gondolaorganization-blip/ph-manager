@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import PortalLayout from './components/PortalLayout';
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import BootstrapPage from './pages/BootstrapPage';
 import PortalLoginPage from './pages/PortalLoginPage';
@@ -46,6 +47,9 @@ function RequireAuth({ children }) {
 export default function App() {
   return (
     <Routes>
+      {/* Landing pública */}
+      <Route path="/" element={<LandingPage />} />
+
       {/* Admin */}
       <Route path="/login"     element={<LoginPage />} />
       <Route path="/bootstrap" element={<BootstrapPage />} />
