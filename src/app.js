@@ -62,11 +62,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', app: 'PH Manager', timestamp: new Date().toISOString() });
 });
 
-// Producción: servir frontend bajo /ph-manager
+// Producción: archivos estáticos (el frontend se sirve por separado en Render)
 const DIST = path.join(__dirname, '..', 'frontend', 'dist');
-if (process.env.NODE_ENV === 'production') {
-  app.use('/ph-manager', express.static(DIST));
-  app.get(['/ph-manager', '/ph-manager/*'], (_req, res) => {
+if (process.env.NODE_ENV === 'production' && require('fs').existsSync(DIST)) {
+  app.use(express.static(DIST));
+  app.get('/{*path}', (_req, res) => {
     res.sendFile(path.join(DIST, 'index.html'));
   });
 }
