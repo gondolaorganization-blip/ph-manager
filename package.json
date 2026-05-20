@@ -8,7 +8,7 @@
     "start": "node src/index.js",
     "build": "cd frontend && npm ci && npm run build",
     "postinstall": "npx prisma generate",
-    "start:prod": "npx prisma db push && node src/index.js",
+    "start:prod": "npx prisma db push && node prisma/create-admin.js && node src/index.js",
     "seed": "node prisma/seed.js"
   },
   "dependencies": {
