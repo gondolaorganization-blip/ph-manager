@@ -154,6 +154,24 @@ export default function PHManagerLanding() {
         .toggle-track.on { background: var(--sky); }
         .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
         .toggle-track.on .toggle-thumb { left: 23px; }
+        /* ── Responsive ─────────────────────────────────────────── */
+        @media (max-width: 767px) {
+          nav { padding-left: 20px !important; padding-right: 20px !important; }
+          section { padding-left: 20px !important; padding-right: 20px !important; }
+          footer { padding-left: 20px !important; padding-right: 20px !important; flex-direction: column !important; align-items: flex-start !important; }
+          .lp-nav-links { display: none !important; }
+          .lp-nav-login { display: none !important; }
+          .lp-hero-btns { flex-direction: column !important; align-items: stretch !important; }
+          .lp-hero-btns button, .lp-hero-btns a { width: 100% !important; text-align: center !important; justify-content: center !important; }
+          .lp-grid-3, .lp-grid-4 { grid-template-columns: 1fr !important; }
+          .lp-grid-dash { grid-template-columns: repeat(2,1fr) !important; }
+          .lp-cta-h2 { font-size: clamp(26px, 7vw, 36px) !important; line-height: 1.15 !important; }
+          .lp-footer-links { gap: 14px !important; flex-wrap: wrap !important; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .lp-grid-3, .lp-grid-4 { grid-template-columns: repeat(2,1fr) !important; }
+          .lp-grid-dash { grid-template-columns: repeat(2,1fr) !important; }
+        }
       `}</style>
 
       {/* NAVBAR */}
@@ -171,7 +189,7 @@ export default function PHManagerLanding() {
             PH <span style={{ color: "#0EA5E9" }}>Manager</span>
           </span>
         </div>
-        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+        <div className="lp-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
           <a href="https://gestarsoft.com"
             style={{ fontSize: 13, fontWeight: 600, color: scrolled ? "#0EA5E9" : "rgba(14,165,233,0.85)", textDecoration: "none", transition: "color 0.15s" }}
           >← GestarSoft</a>
@@ -184,7 +202,7 @@ export default function PHManagerLanding() {
           ))}
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <button className="btn-ghost-dark" onClick={() => navigate("/login")}>Iniciar sesión</button>
+          <button className="btn-ghost-dark lp-nav-login" onClick={() => navigate("/login")}>Iniciar sesión</button>
           <button className="btn-sky" style={{ padding: "9px 20px", fontSize: 13 }} onClick={scrollToPricing}>Empezar gratis</button>
         </div>
       </nav>
@@ -225,7 +243,7 @@ export default function PHManagerLanding() {
             Cuotas, pagos, morosos, proveedores, portal de propietarios y control de garita — todo en una plataforma diseñada para la gestión de Propiedades Horizontales en Panamá.
           </p>
 
-          <div className="fade-up" style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", animationDelay: "0.3s" }}>
+          <div className="fade-up lp-hero-btns" style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", animationDelay: "0.3s" }}>
             <button className="btn-sky" style={{ fontSize: 16, padding: "15px 36px" }} onClick={scrollToPricing}>
               Empezar 14 días gratis
             </button>
@@ -251,7 +269,7 @@ export default function PHManagerLanding() {
                 <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "'DM Mono', monospace" }}>ph.gestarsoft.com/edificios</span>
               </div>
             </div>
-            <div style={{ padding: 20, display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+            <div className="lp-grid-dash" style={{ padding: 20, display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
               {[
                 { l: "Unidades al día", v: "38/42", c: "#0EA5E9" },
                 { l: "Morosos", v: "4", c: "#FF6B6B" },
@@ -281,7 +299,7 @@ export default function PHManagerLanding() {
             </h2>
             <p style={{ fontSize: 16, color: "#6B7280", maxWidth: 500, margin: "0 auto" }}>Diseñado para administradoras profesionales y juntas directivas en Panamá.</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+          <div className="lp-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
             {FEATURES.map(f => (
               <div key={f.title} className="feature-card" style={{ background: "#E4EDFF", borderRadius: 14, padding: "28px 24px", border: "1px solid transparent" }}>
                 <div style={{ fontSize: 26, marginBottom: 14 }}>{f.icon}</div>
@@ -311,7 +329,7 @@ export default function PHManagerLanding() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, alignItems: "start" }}>
+          <div className="lp-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, alignItems: "start" }}>
             {PLANS.map(plan => (
               <div key={plan.id} className="plan-card" style={{
                 background: plan.popular ? "#fff" : "rgba(255,255,255,0.04)",
@@ -399,7 +417,7 @@ export default function PHManagerLanding() {
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <h2 style={{ fontSize: 36, fontWeight: 900, color: "#1E40AF", letterSpacing: "-0.025em" }}>Lo que dicen los administradores</h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
+          <div className="lp-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
             {TESTIMONIALS.map(t => (
               <div key={t.name} style={{ background: "#fff", borderRadius: 16, padding: 28, border: "1px solid #DBEAFE", boxShadow: "0 4px 20px rgba(0,0,0,0.05)" }}>
                 <div style={{ fontSize: 18, color: "#0EA5E9", marginBottom: 12, letterSpacing: 2 }}>★★★★★</div>
@@ -441,7 +459,7 @@ export default function PHManagerLanding() {
       <section style={{ padding: "100px 48px", background: "linear-gradient(135deg, #0F172A 0%, #1E3A5F 60%, #1E40AF 100%)", textAlign: "center", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 70%)", filter: "blur(40px)" }} />
         <div style={{ position: "relative", zIndex: 1, maxWidth: 600, margin: "0 auto" }}>
-          <h2 style={{ fontSize: 44, fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", marginBottom: 16 }}>Tu edificio, mejor administrado</h2>
+          <h2 className="lp-cta-h2" style={{ fontSize: 44, fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", marginBottom: 16 }}>Tu edificio, mejor administrado</h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", marginBottom: 36, lineHeight: 1.7 }}>
             Únete a administradores de Propiedades Horizontales en Panamá que ya automatizan sus cuotas, morosos y comunicaciones con propietarios.
           </p>
@@ -458,7 +476,7 @@ export default function PHManagerLanding() {
           <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg, #1E40AF, #0EA5E9)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff" }}>PH</div>
           <span style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>PH Manager · GestarSoft</span>
         </div>
-        <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+        <div className="lp-footer-links" style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
           <a href="https://gestarsoft.com/terminos" target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Términos</a>
           <a href="https://gestarsoft.com/privacidad" target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Privacidad</a>
           <a href={`https://wa.me/50765143637?text=Hola, necesito soporte con PH Manager`} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Soporte</a>
