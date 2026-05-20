@@ -16,6 +16,9 @@ api.interceptors.response.use(
       localStorage.removeItem('phm_user');
       window.location.href = import.meta.env.BASE_URL + 'login';
     }
+    if (err.response?.status === 402) {
+      window.location.href = import.meta.env.BASE_URL + 'suscripcion';
+    }
     return Promise.reject(err);
   }
 );
