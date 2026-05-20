@@ -34,7 +34,7 @@ async function login(req, res) {
     const { password: _, ...datos } = usuario;
     res.json({ token: firmarToken(usuario), usuario: datos });
   } catch (err) {
-    console.error(err);
+    console.error('[LOGIN ERROR]', err.message, err.stack);
     res.status(500).json({ error: 'Error al iniciar sesión' });
   }
 }
