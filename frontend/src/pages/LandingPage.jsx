@@ -172,6 +172,9 @@ export default function PHManagerLanding() {
           </span>
         </div>
         <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          <a href="https://gestarsoft.com"
+            style={{ fontSize: 13, fontWeight: 600, color: scrolled ? "#0EA5E9" : "rgba(14,165,233,0.85)", textDecoration: "none", transition: "color 0.15s" }}
+          >← GestarSoft</a>
           {["Funciones", "Precios", "FAQ"].map(item => (
             <a key={item} href={`#${item.toLowerCase()}`}
               style={{ fontSize: 14, fontWeight: 600, color: scrolled ? "#4B5563" : "rgba(255,255,255,0.8)", textDecoration: "none", transition: "color 0.15s" }}
@@ -331,7 +334,7 @@ export default function PHManagerLanding() {
                 </div>
                 <div style={{ fontSize: 11, color: "#0EA5E9", fontWeight: 700, marginBottom: 10, textAlign: "center" }}>✓ 14 días gratis · Sin tarjeta</div>
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate(`/registro?plan=${plan.id}`)}
                   style={{
                     width: "100%", marginBottom: 20, padding: "12px", fontSize: 13, fontWeight: 700,
                     borderRadius: 10, border: plan.popular ? "none" : "1px solid rgba(255,255,255,0.15)",
@@ -358,6 +361,35 @@ export default function PHManagerLanding() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* PAYMENT METHODS */}
+      <section style={{ padding: "60px 48px 80px", background: "#0F172A", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 24 }}>Métodos de pago aceptados</p>
+          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "16px 28px", textAlign: "center" }}>
+              <div style={{ fontSize: 22, marginBottom: 4 }}>🅿</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>PayPal</div>
+              <div style={{ fontSize: 11, color: "#0EA5E9", fontWeight: 600 }}>Principal</div>
+            </div>
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "16px 28px", textAlign: "center" }}>
+              <div style={{ fontSize: 22, marginBottom: 4 }}>📱</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>Yappy</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Contáctenos</div>
+            </div>
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "16px 28px", textAlign: "center" }}>
+              <div style={{ fontSize: 22, marginBottom: 4 }}>🏦</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>ACH / Transferencia</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>Contáctenos</div>
+            </div>
+          </div>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", marginTop: 20 }}>
+            Para Yappy y transferencia bancaria, escríbanos a{" "}
+            <a href={`https://wa.me/50765143637?text=Hola, quiero suscribirme a PH Manager`} target="_blank" rel="noreferrer" style={{ color: "rgba(255,255,255,0.45)", textDecoration: "underline" }}>WhatsApp</a>{" "}
+            y habilitamos el acceso manualmente.
+          </p>
         </div>
       </section>
 
@@ -426,8 +458,11 @@ export default function PHManagerLanding() {
           <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg, #1E40AF, #0EA5E9)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff" }}>PH</div>
           <span style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>PH Manager · GestarSoft</span>
         </div>
-        <div style={{ display: "flex", gap: 24 }}>
-          <a href="mailto:soporte@gestarsoft.com" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Soporte</a>
+        <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+          <a href="https://gestarsoft.com/terminos" target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Términos</a>
+          <a href="https://gestarsoft.com/privacidad" target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Privacidad</a>
+          <a href={`https://wa.me/50765143637?text=Hola, necesito soporte con PH Manager`} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Soporte</a>
+          <a href="https://www.linkedin.com/company/gestarsoft" target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>LinkedIn</a>
           <a href="https://gestarsoft.com" style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>GestarSoft.com</a>
         </div>
         <span style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>© 2026 GestarSoft · Panamá</span>
