@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import PortalLayout from './components/PortalLayout';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import RegistroPage from './pages/RegistroPage';
 import BootstrapPage from './pages/BootstrapPage';
 import PortalLoginPage from './pages/PortalLoginPage';
 import EdificiosPage from './pages/EdificiosPage';
@@ -52,6 +53,7 @@ export default function App() {
 
       {/* Admin */}
       <Route path="/login"     element={<LoginPage />} />
+      <Route path="/registro"  element={<RegistroPage />} />
       <Route path="/bootstrap" element={<BootstrapPage />} />
       <Route element={<RequireAuth><Layout /></RequireAuth>}>
         <Route path="/edificios"          element={<EdificiosPage />} />
